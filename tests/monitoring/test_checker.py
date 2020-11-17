@@ -1,5 +1,3 @@
-from unittest import mock
-
 import responses
 
 from monitoring.checker import CheckResult, Rule, check
