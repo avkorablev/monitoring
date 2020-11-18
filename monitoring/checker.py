@@ -10,6 +10,9 @@ class Rule:
     method: str = 'GET'
     regexp: Optional[Pattern[str]] = None
 
+    def __hash__(self):
+        return hash("{}:{}:{}".format(self.url, self.method, self.regexp))
+
 
 @dataclass
 class CheckResult:
