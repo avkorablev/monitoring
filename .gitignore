@@ -2,3 +2,6 @@
 *.iml
 .python-version
 __pycache__
+ssl_keys
+setup.yaml
+.coverage

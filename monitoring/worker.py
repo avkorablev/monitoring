@@ -1,35 +1,42 @@
+import json
 import os
-import re
-from typing import Dict, Set
 
-import yaml
+from kafka import KafkaProducer
 
-from monitoring.checker import Rule, check
+from monitoring.checker import CheckResult, check
+from monitoring.settings import build_settings, init_rules
 
 TIMEOUT = 10
 
 
-def parse_rule(settings: Dict) -> Rule:
-    if 'url' not in settings:
-        raise ValueError('There is an problem with parsing Rule')
-    return Rule(
-        url=settings['url'],
-        method=settings.get('method', None),
-        regexp=None if 'regexp' not in settings else re.compile(settings['regexp'])
-    )
-
-
-def init_rules(yaml_path: str) -> Set[Rule]:
-    if not os.path.exists(yaml_path):
-        raise ValueError('YAML file does not exist')
-    with open(yaml_path, 'r') as f:
-        rules = yaml.safe_load(f)
-    return set((parse_rule(rule) for rule in rules or []))
+def result_serializer(result: CheckResult) -> bytes:
+    return json.dumps({
+        'response_time': result.response_time if result.response_time is not None else 'None',
+        'status_code': result.status_code if result.status_code is not None else 'None',
+        'regexp_result': result.regexp_result if result.regexp_result is not None else 'None',
+        'failed': result.failed
+    }).encode('utf-8')
 
 
 def main():
+    settings = build_settings()
+
     rules = init_rules(os.path.join(os.path.dirname(__file__), '..', 'tests', 'rules', 'one_rule.yaml'))
     results = [check(rule, TIMEOUT) for rule in rules]
+
+    # With code snippets from https://help.aiven.io/en/articles/489572-getting-started-with-aiven-kafka
+    ssl_cert_dir = os.path.join(os.path.dirname(__file__), '..', 'ssl_keys')
+    producer = KafkaProducer(
+        bootstrap_servers=settings['kafka']['url'],
+        security_protocol='SSL',
+        ssl_cafile=os.path.join(ssl_cert_dir, 'ca.pem'),
+        ssl_certfile=os.path.join(ssl_cert_dir, 'service.cert'),
+        ssl_keyfile=os.path.join(ssl_cert_dir, 'service.key'),
+        value_serializer=result_serializer
+    )
+    for result in results:
+        producer.send('monitoring-tests', result)
+    producer.flush()
     print(results)
 
 

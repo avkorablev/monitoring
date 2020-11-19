@@ -3,15 +3,8 @@ import re
 
 import pytest
 
-from monitoring import Rule, rules_registry
-from monitoring.worker import init_rules, parse_rule
-
-
-def test_registry():
-    assert rules_registry.rules == set()
-    rule = Rule('http://test.com')
-    rules_registry.register(rule)
-    assert rules_registry.rules == {rule}
+from monitoring.checker import Rule
+from monitoring.settings import init_rules, parse_rule
 
 
 def test_init_rules_yaml_not_exist():

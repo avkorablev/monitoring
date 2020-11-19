@@ -1,3 +1,4 @@
 pip
 requests
 PyYAML
+kafka-python
