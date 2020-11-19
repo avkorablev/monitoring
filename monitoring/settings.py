@@ -21,10 +21,12 @@ def init_rules(yaml_path: str) -> Set[Rule]:
 
 
 def parse_rule(settings: Dict) -> Rule:
-    if 'url' not in settings:
-        raise ValueError('There is an problem with parsing Rule')
+    for field in ['url', 'period']:
+        if field not in settings:
+            raise ValueError('There is an problem with parsing Rule: "{}" should be set'.format(field))
     return Rule(
         url=settings['url'],
+        period=settings['period'],
         method=settings.get('method', None),
         regexp=None if 'regexp' not in settings else re.compile(settings['regexp'])
     )

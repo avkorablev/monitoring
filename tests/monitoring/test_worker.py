@@ -19,16 +19,17 @@ def test_init_rules():
 
 def test_init_rules_file_with_rule():
     rules = init_rules(os.path.join(os.path.dirname(__file__), '..', 'rules', 'one_rule.yaml'))
-    assert rules == {Rule('http://test.com', 'POST', re.compile('.*'))}
+    assert rules == {Rule('http://test.com', 10, 'POST', re.compile('.*'))}
 
 
 def test_parse_rule():
     input_dict = {
         'url': 'http://test.com',
+        'period': 10,
         'method': 'POST',
         'regexp': '.*'
     }
 
-    expected_rule = Rule('http://test.com', 'POST', re.compile('.*'))
+    expected_rule = Rule('http://test.com', 10, 'POST', re.compile('.*'))
 
     assert parse_rule(input_dict) == expected_rule

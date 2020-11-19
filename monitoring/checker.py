@@ -7,6 +7,7 @@ import requests
 @dataclass
 class Rule:
     url: str
+    period: int
     method: str = 'GET'
     regexp: Optional[Pattern[str]] = None
 
