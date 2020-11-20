@@ -1,8 +1,18 @@
 import os
+from typing import Generator
 
 from kafka import KafkaConsumer
 
 from monitoring.settings import build_settings
+
+
+def read_kafka_records(consumer: KafkaConsumer) -> Generator[bytes, None, None]:
+    for _ in range(2):
+        raw_msgs = consumer.poll(timeout_ms=1000)
+        for tp, msgs in raw_msgs.items():
+            for msg in msgs:
+                yield msg.value
+
 
 if __name__ == '__main__':
     settings = build_settings()
@@ -21,10 +31,7 @@ if __name__ == '__main__':
         ssl_keyfile=os.path.join(ssl_cert_dir, 'service.key'),
     )
 
-    for _ in range(2):
-        raw_msgs = consumer.poll(timeout_ms=1000)
-        for tp, msgs in raw_msgs.items():
-            for msg in msgs:
-                print("Received: {}".format(msg.value))
+    for record in read_kafka_records(consumer):
+        print("Received: {}".format(record))
 
     consumer.commit()
