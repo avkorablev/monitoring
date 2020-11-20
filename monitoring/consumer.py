@@ -3,15 +3,16 @@ from typing import Generator
 
 from kafka import KafkaConsumer
 
+from monitoring.checker import CheckResult
 from monitoring.settings import build_settings
 
 
-def read_kafka_records(consumer: KafkaConsumer) -> Generator[bytes, None, None]:
+def read_kafka_records(consumer: KafkaConsumer) -> Generator[CheckResult, None, None]:
     for _ in range(2):
         raw_msgs = consumer.poll(timeout_ms=1000)
         for tp, msgs in raw_msgs.items():
             for msg in msgs:
-                yield msg.value
+                yield CheckResult.deserialize(msg.value)
 
 
 if __name__ == '__main__':

@@ -10,15 +10,6 @@ from monitoring.settings import build_settings, init_rules
 TIMEOUT = 10
 
 
-def result_serializer(result: CheckResult) -> bytes:
-    return json.dumps({
-        'response_time': result.response_time if result.response_time is not None else 'None',
-        'status_code': result.status_code if result.status_code is not None else 'None',
-        'regexp_result': result.regexp_result if result.regexp_result is not None else 'None',
-        'failed': result.failed
-    }).encode('utf-8')
-
-
 async def worker(name: str, queue: asyncio.Queue, producer: KafkaProducer, topic: str):
     while True:
         rule = await queue.get()
@@ -44,7 +35,7 @@ async def main():
         ssl_cafile=os.path.join(ssl_cert_dir, 'ca.pem'),
         ssl_certfile=os.path.join(ssl_cert_dir, 'service.cert'),
         ssl_keyfile=os.path.join(ssl_cert_dir, 'service.key'),
-        value_serializer=result_serializer
+        value_serializer=lambda v: v.serialize()
     )
 
     # https://docs.python.org/3/library/asyncio-queue.html#asyncio-queues
