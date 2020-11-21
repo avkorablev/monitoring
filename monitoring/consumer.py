@@ -10,7 +10,6 @@ from monitoring.settings import build_settings
 
 
 def read_kafka_records(consumer: KafkaConsumer) -> Generator[CheckResult, None, None]:
-    for _ in range(2):
         raw_msgs = consumer.poll(timeout_ms=1000)
         for tp, msgs in raw_msgs.items():
             for msg in msgs:
@@ -44,20 +43,21 @@ if __name__ == '__main__':
     )
     cursor = connection.cursor()
 
-    for record in read_kafka_records(consumer):
-        print("Received: {}".format(record))
-        cursor.execute(
-            sql.SQL(
-                "insert into {}.{} "
-                "(utc_time, rule_id, response_time, status_code, regexp_result, failed) "
-                "values (%s, %s, %s, %s, %s, %s)"
-            ).format(
-                sql.Identifier('monitoring'),
-                sql.Identifier('checks')
-            ),
-            [record.utc_time, record.rule_id, record.response_time, record.status_code,
-             record.regexp_result, record.failed]
-        )
+    while True:
+        for record in read_kafka_records(consumer):
+            print("Received: {}".format(record))
+            cursor.execute(
+                sql.SQL(
+                    "insert into {}.{} "
+                    "(utc_time, rule_id, response_time, status_code, regexp_result, failed) "
+                    "values (%s, %s, %s, %s, %s, %s)"
+                ).format(
+                    sql.Identifier('monitoring'),
+                    sql.Identifier('checks')
+                ),
+                [record.utc_time, record.rule_id, record.response_time, record.status_code,
+                 record.regexp_result, record.failed]
+            )
 
-    connection.commit()
-    consumer.commit()
+        connection.commit()
+        consumer.commit()
