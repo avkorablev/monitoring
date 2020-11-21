@@ -1,7 +1,9 @@
 import os
 from typing import Generator
 
+import psycopg2
 from kafka import KafkaConsumer
+from psycopg2 import sql
 
 from monitoring.checker import CheckResult
 from monitoring.settings import build_settings
@@ -32,7 +34,30 @@ if __name__ == '__main__':
         ssl_keyfile=os.path.join(ssl_cert_dir, 'service.key'),
     )
 
+    connection = psycopg2.connect(
+        host=settings['pg']['host'],
+        port=settings['pg']['port'],
+        database=settings['pg']['database'],
+        user=settings['pg']['user'],
+        password=settings['pg']['password'],
+        sslmode=settings['pg']['sslmode'],
+    )
+    cursor = connection.cursor()
+
     for record in read_kafka_records(consumer):
         print("Received: {}".format(record))
+        cursor.execute(
+            sql.SQL(
+                "insert into {}.{} "
+                "(utc_time, rule_id, response_time, status_code, regexp_result, failed) "
+                "values (%s, %s, %s, %s, %s, %s)"
+            ).format(
+                sql.Identifier('monitoring'),
+                sql.Identifier('checks')
+            ),
+            [record.utc_time, record.rule_id, record.response_time, record.status_code,
+             record.regexp_result, record.failed]
+        )
 
+    connection.commit()
     consumer.commit()

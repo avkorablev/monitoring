@@ -2,3 +2,4 @@ pip
 requests
 PyYAML
 kafka-python
+psycopg2-binary

@@ -1,10 +1,9 @@
 import asyncio
-import json
 import os
 
 from kafka import KafkaProducer
 
-from monitoring.checker import CheckResult, check
+from monitoring.checker import check
 from monitoring.settings import build_settings, init_rules
 
 TIMEOUT = 10
