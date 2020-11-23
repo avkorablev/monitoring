@@ -30,3 +30,11 @@ def parse_rule(settings: Dict) -> Rule:
         method=settings.get('method', None),
         regexp=None if 'regexp' not in settings else re.compile(settings['regexp'])
     )
+
+
+def cert_files():
+    ssl_cert_dir = os.path.join(os.path.dirname(__file__), '..', 'certs')
+    ssl_cafile = os.path.join(ssl_cert_dir, 'ca.pem')
+    ssl_certfile = os.path.join(ssl_cert_dir, 'service.cert')
+    ssl_keyfile = os.path.join(ssl_cert_dir, 'service.key')
+    return ssl_cafile, ssl_certfile, ssl_keyfile

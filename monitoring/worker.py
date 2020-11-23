@@ -8,7 +8,7 @@ from psycopg2 import sql
 
 from monitoring.checker import Rule, check, utcnow
 from monitoring.gp import get_pg_connection
-from monitoring.settings import build_settings, init_rules
+from monitoring.settings import build_settings, cert_files, init_rules
 
 TIMEOUT = 10
 
@@ -89,7 +89,7 @@ def upload_rules(rules: Set[Rule], pg_connection):
 
 async def main():
     settings = build_settings()
-    rules = init_rules(os.path.join(os.path.dirname(__file__), '..', 'tests', 'rules', 'one_rule.yaml'))
+    rules = init_rules(os.path.join(os.path.dirname(__file__), '..', 'rules.yaml'))
 
     with get_pg_connection(
         host=settings['pg']['host'],
@@ -102,13 +102,13 @@ async def main():
         upload_rules(rules, pg_connection)
 
     # With code snippets from https://help.aiven.io/en/articles/489572-getting-started-with-aiven-kafka
-    ssl_cert_dir = os.path.join(os.path.dirname(__file__), '..', 'ssl_keys')
+    ssl_cafile, ssl_certfile, ssl_keyfile = cert_files()
     producer = KafkaProducer(
         bootstrap_servers=settings['kafka']['url'],
         security_protocol='SSL',
-        ssl_cafile=os.path.join(ssl_cert_dir, 'ca.pem'),
-        ssl_certfile=os.path.join(ssl_cert_dir, 'service.cert'),
-        ssl_keyfile=os.path.join(ssl_cert_dir, 'service.key'),
+        ssl_cafile=ssl_cafile,
+        ssl_certfile=ssl_certfile,
+        ssl_keyfile=ssl_keyfile,
         value_serializer=lambda v: v.serialize()
     )
 

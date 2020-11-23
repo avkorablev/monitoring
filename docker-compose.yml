@@ -4,7 +4,35 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.worker
+    configs:
+      - source: setup
+        target: /usr/src/app/setup.yaml
+      - source: certs
+        target: /usr/src/app/certs
+      - source: rules
+        target: /usr/src/app/rules.yaml
+    # https://github.com/docker/compose/issues/5110#issuecomment-679070813
+    volumes:
+      - ./setup.yaml:/usr/src/app/setup.yaml
+      - ./certs:/usr/src/app/certs
+      - ./rules.yaml:/usr/src/app/rules.yaml
   consumer:
     build:
       context: .
       dockerfile: Dockerfile.consumer
+    configs:
+      - source: setup
+        target: /usr/src/app/setup.yaml
+      - source: certs
+        target: /usr/src/app/certs
+    # https://github.com/docker/compose/issues/5110#issuecomment-679070813
+    volumes:
+      - ./setup.yaml:/usr/src/app/setup.yaml
+      - ./certs:/usr/src/app/certs
+configs:
+  setup:
+    file: ./setup.yaml
+  certs:
+    file: ./certs
+  rules:
+    file: ./rules.yaml
