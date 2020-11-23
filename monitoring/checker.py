@@ -17,7 +17,7 @@ class Rule:
         return hash(self.get_id())
 
     def get_id(self):
-        return "{}:{}:{}".format(self.url, self.method, self.regexp)
+        return "{}:::{}:::{}".format(self.url, self.method, self.regexp.pattern if self.regexp else None)
 
 
 @dataclass
