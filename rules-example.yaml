@@ -1,0 +1,4 @@
+- 'url': 'http://test.com'
+  'period': 10
+  'method': 'POST'
+  'regexp': '.*'

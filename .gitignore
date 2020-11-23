@@ -2,7 +2,9 @@
 *.iml
 .python-version
 __pycache__
-certs
+certs/*.pem
+certs/*.cert
+certs/*.key
 setup.yaml
 .coverage
 rules.yaml

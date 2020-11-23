@@ -1,0 +1,15 @@
+kafka:
+  url: 'kafka_host:24883'
+  topic: 'kafka-topic'
+  consumer:
+    client_id: 'demo-client-1'
+    group_id: 'demo-group'
+  worker:
+    num_tasks: 3
+pg:
+  host: 'pg_host'
+  port: 24881
+  database: 'pg_database_name'
+  user: 'pg_user'
+  password: 'pg_password'
+  sslmode: 'require'
