@@ -25,7 +25,7 @@ regexp (a pattern that can be used in `re.compile` function).
 
 ## Manual start and tests
 
-Services can be started manually. It should work with any Python version newer than 3.7. However it was tested with 
+Services can be started manually. It should work with any Python version newer than 3.7. However, it was tested with 
 Python 3.9 only.
 
 To install dependencies:
