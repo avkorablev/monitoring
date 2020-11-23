@@ -1,12 +1,12 @@
 import psycopg2
 
 
-def get_pg_connection(host, port, database, user, password, sslmode):
+def get_pg_connection(settings):
     return psycopg2.connect(
-        host=host,
-        port=port,
-        database=database,
-        user=user,
-        password=password,
-        sslmode=sslmode,
+        host=settings['pg']['host'],
+        port=settings['pg']['port'],
+        database=settings['pg']['database'],
+        user=settings['pg']['user'],
+        password=settings['pg']['password'],
+        sslmode=settings['pg']['sslmode'],
     )

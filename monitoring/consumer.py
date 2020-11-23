@@ -1,13 +1,12 @@
 import logging
 from typing import Generator
 
-import psycopg2
 from kafka import KafkaConsumer
 from psycopg2 import sql
 
+from .gp import get_pg_connection
 from .checker import CheckResult
 from .settings import build_settings, cert_files
-
 
 logger = logging.getLogger(__name__)
 
@@ -49,14 +48,7 @@ def main():
     settings = build_settings()
     consumer = get_consumer(settings)
     while True:
-        with psycopg2.connect(
-                host=settings['pg']['host'],
-                port=settings['pg']['port'],
-                database=settings['pg']['database'],
-                user=settings['pg']['user'],
-                password=settings['pg']['password'],
-                sslmode=settings['pg']['sslmode'],
-        ) as connection, connection.cursor() as cursor:
+        with get_pg_connection(settings) as connection, connection.cursor() as cursor:
             for record in read_kafka_records(consumer):
                 logger.debug("Received: %s", record)
                 url, method, regexp = record.rule_id.split(':::')

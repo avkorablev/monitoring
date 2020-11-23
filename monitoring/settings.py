@@ -12,7 +12,7 @@ def build_settings():
         return yaml.safe_load(f)
 
 
-def init_rules(yaml_path: str) -> Set[Rule]:
+def init_rules(yaml_path = os.path.join(os.path.dirname(__file__), '..', 'rules.yaml')) -> Set[Rule]:
     if not os.path.exists(yaml_path):
         raise ValueError('YAML file does not exist')
     with open(yaml_path, 'r') as f:
